@@ -1,24 +1,48 @@
 import os
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from database import get_db_connection, init_db
 
+# Determine root directory accurately
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(BASE_DIR) == 'api':
+    ROOT_DIR = os.path.dirname(BASE_DIR)
+else:
+    ROOT_DIR = BASE_DIR
+
+TEMPLATE_DIR = os.path.join(ROOT_DIR, 'templates')
+STATIC_DIR = os.path.join(ROOT_DIR, 'static')
 
 app = Flask(
     __name__,
-    template_folder=os.path.join(BASE_DIR, 'templates'),
-    static_folder=os.path.join(BASE_DIR, 'static')
+    template_folder=TEMPLATE_DIR,
+    static_folder=STATIC_DIR,
+    static_url_path='/static'
 )
 app.secret_key = 'artisan_gallery_secret_key_sage_olive_2026'
+
+# WSGI Middleware to fix Vercel /api/index prefix in PATH_INFO
+class VercelPrefixMiddleware(object):
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        if path.startswith('/api/index'):
+            environ['PATH_INFO'] = path[len('/api/index'):] or '/'
+        elif path.startswith('/api'):
+            environ['PATH_INFO'] = path[len('/api'):] or '/'
+        return self.wsgi_app(environ, start_response)
+
+app.wsgi_app = VercelPrefixMiddleware(app.wsgi_app)
 
 # Configure Upload Folder safely (support serverless /tmp)
 IS_SERVERLESS = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
 if IS_SERVERLESS:
     UPLOAD_FOLDER = '/tmp/uploads'
 else:
-    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
+    UPLOAD_FOLDER = os.path.join(STATIC_DIR, 'uploads')
 
 try:
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -265,13 +289,11 @@ def checkout():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Get items in cart
     placeholders = ','.join('?' for _ in cart_ids)
     paintings = cursor.execute(f'''
         SELECT * FROM paintings WHERE id IN ({placeholders})
     ''', cart_ids).fetchall()
 
-    # Verify not already sold
     sold_items = [p['title'] for p in paintings if p['status'] == 'Sold']
     if sold_items:
         conn.close()
@@ -280,14 +302,12 @@ def checkout():
 
     total_amount = sum(p['price'] for p in paintings)
 
-    # 1. Insert order
     cursor.execute('''
         INSERT INTO orders (buyer_name, buyer_email, shipping_address, total_amount, payment_method, status)
         VALUES (?, ?, ?, ?, ?, 'Completed')
     ''', (buyer_name, buyer_email, address, total_amount, payment_method))
     order_id = cursor.lastrowid
 
-    # 2. Insert order items & update status to 'Sold'
     for p in paintings:
         cursor.execute('''
             INSERT INTO order_items (order_id, painting_id, price, artist_id)
@@ -301,7 +321,6 @@ def checkout():
     conn.commit()
     conn.close()
 
-    # Clear cart
     session['cart'] = []
 
     return render_template(
