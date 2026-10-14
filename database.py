@@ -1,17 +1,45 @@
 import sqlite3
 import os
+import shutil
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'artisan_gallery.db')
+IS_SERVERLESS = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if IS_SERVERLESS:
+    DB_PATH = '/tmp/artisan_gallery.db'
+    bundled_db = os.path.join(BASE_DIR, 'artisan_gallery.db')
+    if not os.path.exists(DB_PATH) and os.path.exists(bundled_db):
+        try:
+            shutil.copyfile(bundled_db, DB_PATH)
+        except Exception:
+            pass
+else:
+    DB_PATH = os.path.join(BASE_DIR, 'artisan_gallery.db')
 
 def get_db_connection():
     if not os.path.exists(DB_PATH):
         init_db()
+    else:
+        try:
+            check_conn = sqlite3.connect(DB_PATH)
+            cur = check_conn.cursor()
+            cur.execute("SELECT 1 FROM artists LIMIT 1")
+            check_conn.close()
+        except sqlite3.OperationalError:
+            try:
+                check_conn.close()
+            except Exception:
+                pass
+            init_db()
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
     # Artists table
@@ -39,7 +67,7 @@ def init_db():
             year INTEGER,
             price REAL NOT NULL,
             image_url TEXT NOT NULL,
-            status TEXT DEFAULT 'Available', -- 'Available' or 'Sold'
+            status TEXT DEFAULT 'Available',
             featured INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (artist_id) REFERENCES artists (id) ON DELETE CASCADE
@@ -228,7 +256,6 @@ def seed_sample_data(conn):
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', sample_paintings)
 
-    # Add historical order for the sold paintings so the sales reporting has genuine data!
     cursor.execute('''
         INSERT INTO orders (buyer_name, buyer_email, shipping_address, total_amount, payment_method, status, created_at)
         VALUES ('Lady Genevieve Clark', 'g.clark@heritage.co.uk', '44 Kensington Gardens, London, UK', 2130.00, 'MasterCard •••• 4892', 'Completed', '2026-09-28 14:22:00')
@@ -249,4 +276,4 @@ def seed_sample_data(conn):
 
 if __name__ == '__main__':
     init_db()
-    print("Database initialized successfully with sample artists, paintings, and sales records.")
+    print("Database initialized successfully.")

@@ -4,12 +4,27 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.utils import secure_filename
 from database import get_db_connection, init_db
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates'),
+    static_folder=os.path.join(BASE_DIR, 'static')
+)
 app.secret_key = 'artisan_gallery_secret_key_sage_olive_2026'
 
-# Configure Upload Folder
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Configure Upload Folder safely (support serverless /tmp)
+IS_SERVERLESS = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
+if IS_SERVERLESS:
+    UPLOAD_FOLDER = '/tmp/uploads'
+else:
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
+
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+except Exception:
+    pass
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
 
@@ -22,10 +37,15 @@ def inject_cart_info():
     cart = session.get('cart', [])
     active_artist_id = session.get('active_artist_id', 1)
     
-    conn = get_db_connection()
-    artists = conn.execute('SELECT id, name FROM artists ORDER BY name ASC').fetchall()
-    active_artist = conn.execute('SELECT * FROM artists WHERE id = ?', (active_artist_id,)).fetchone()
-    conn.close()
+    artists = []
+    active_artist = None
+    try:
+        conn = get_db_connection()
+        artists = conn.execute('SELECT id, name FROM artists ORDER BY name ASC').fetchall()
+        active_artist = conn.execute('SELECT * FROM artists WHERE id = ?', (active_artist_id,)).fetchone()
+        conn.close()
+    except Exception as e:
+        print(f"Context processor warning: {e}")
 
     return {
         'cart_count': len(cart),
@@ -300,7 +320,6 @@ def checkout():
 
 @app.route('/artist/select/<int:artist_id>')
 def select_active_artist(artist_id):
-    """Switch active artist profile for managing listings and sales."""
     session['active_artist_id'] = artist_id
     flash('Artist profile switched.', 'info')
     return redirect(url_for('artist_dashboard'))
@@ -312,7 +331,6 @@ def artist_dashboard():
 
     artist = conn.execute('SELECT * FROM artists WHERE id = ?', (artist_id,)).fetchone()
     if not artist:
-        # Fallback to first available artist
         first_artist = conn.execute('SELECT * FROM artists ORDER BY id ASC LIMIT 1').fetchone()
         if first_artist:
             artist_id = first_artist['id']
@@ -322,14 +340,12 @@ def artist_dashboard():
             conn.close()
             return redirect(url_for('add_artist'))
 
-    # All paintings by this artist
     paintings = conn.execute('''
         SELECT * FROM paintings 
         WHERE artist_id = ? 
         ORDER BY created_at DESC
     ''', (artist_id,)).fetchall()
 
-    # Sales metrics
     sales_stats = conn.execute('''
         SELECT 
             COUNT(oi.id) AS total_sold_count,
@@ -343,7 +359,6 @@ def artist_dashboard():
     sold_count = sales_stats['total_sold_count'] or 0
     total_revenue = sales_stats['total_revenue'] or 0.0
 
-    # Sales details records (detailed table of sales for this artist)
     sales_details = conn.execute('''
         SELECT 
             oi.id AS item_id,
@@ -363,7 +378,6 @@ def artist_dashboard():
         ORDER BY o.created_at DESC
     ''', (artist_id,)).fetchall()
 
-    # All artists for profile switcher
     all_artists = conn.execute('SELECT * FROM artists ORDER BY name ASC').fetchall()
     conn.close()
 
@@ -397,20 +411,20 @@ def add_painting():
 
         final_image_url = ''
 
-        # Check for uploaded file
         if 'image_file' in request.files:
             file = request.files['image_file']
             if file and file.filename != '' and allowed_file(file.filename):
-                filename = secure_filename(f"art_{file.filename}")
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                final_image_url = f"/static/uploads/{filename}"
+                try:
+                    filename = secure_filename(f"art_{file.filename}")
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    final_image_url = f"/static/uploads/{filename}"
+                except Exception as e:
+                    print(f"File save error: {e}")
 
-        # If no file uploaded, fallback to image URL input
         if not final_image_url and image_url_input:
             final_image_url = image_url_input
         elif not final_image_url:
-            # Elegant default art placeholder
             final_image_url = "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1000&q=80"
 
         try:
@@ -500,7 +514,6 @@ def artist_profile(artist_id):
 
 @app.route('/artist/new', methods=['GET', 'POST'])
 def add_artist():
-    """Register a new painter/artist profile."""
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         email = request.form.get('email', '').strip()
@@ -537,5 +550,5 @@ def add_artist():
 
 if __name__ == '__main__':
     init_db()
-    print("Artisan Gallery starting at http://127.0.0.1:5000")
+    print("Artisan Canvas starting at http://127.0.0.1:5000")
     app.run(debug=True, port=5000)
