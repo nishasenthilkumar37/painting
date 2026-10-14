@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Acquisition Confirmed | Order #{{ order_id }} | Artisan Canvas{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 3rem; padding-bottom: 5rem;">
+    <div style="background-color: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: var(--card-hover-shadow); padding: 3rem; text-align: center;">
+        <div style="width: 70px; height: 70px; background-color: var(--sage-light); color: var(--deep-olive); border-radius: var(--radius-full); display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1.5rem;">
+            ✓
+        </div>
+
+        <span style="display: block; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 700;">Purchase Completed</span>
+        <h1 style="font-family: var(--font-serif); font-size: 2.4rem; color: var(--deep-olive); margin: 0.5rem 0 1rem;">
+            Congratulations on Your Art Acquisition!
+        </h1>
+        <p style="color: var(--text-secondary); max-width: 580px; margin: 0 auto 2rem; line-height: 1.6;">
+            Order <strong>#AC-{{ "%05d"|format(order_id) }}</strong> has been verified. The original paintings have been permanently marked as <strong>Sold</strong>, and the respective artists have received the sales notifications.
+        </p>
+
+        <!-- Summary details block -->
+        <div style="background-color: var(--soft-white-alt); border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: 1.8rem; text-align: left; margin-bottom: 2.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--deep-olive); margin-bottom: 1rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.5rem;">
+                Acquisition Details
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.92rem;">
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Collector</span>
+                    <strong>{{ buyer_name }}</strong> ({{ buyer_email }})
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Delivery Address</span>
+                    <strong>{{ address }}</strong>
+                </div>
+            </div>
+
+            <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.8rem; letter-spacing: 0.05em;">
+                Acquired Paintings
+            </h4>
+
+            {% for p in paintings %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-top: 1px solid var(--border-light);">
+                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                        <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" style="width: 42px; height: 42px; border-radius: 4px; object-fit: cover;">
+                        <div>
+                            <span style="font-weight: 600; color: var(--deep-olive); display: block;">{{ p['title'] }}</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">{{ p['medium'] }}</span>
+                        </div>
+                    </div>
+                    <span style="font-family: var(--font-serif); font-weight: 700; color: var(--deep-olive);">
+                        ${{ "%.2f"|format(p['price']) }}
+                    </span>
+                </div>
+            {% endfor %}
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; margin-top: 0.5rem; border-top: 2px solid var(--sage-light); font-size: 1.15rem;">
+                <strong>Total Amount Paid</strong>
+                <strong style="color: var(--deep-olive); font-family: var(--font-serif); font-size: 1.35rem;">
+                    ${{ "%.2f"|format(total_amount) }}
+                </strong>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <a href="{{ url_for('index') }}" class="btn-add-cart-lg" style="width: auto; padding: 0.85rem 2rem;">
+                Explore More Artworks
+            </a>
+            <a href="{{ url_for('artist_dashboard') }}" class="btn-secondary-outline">
+                Inspect Artist Sales Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

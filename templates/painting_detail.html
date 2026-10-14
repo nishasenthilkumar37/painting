@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ painting['title'] }} by {{ painting['artist_name'] }} | Artisan Canvas{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-nav">
+        <a href="{{ url_for('index') }}">Gallery</a>
+        <span>›</span>
+        <a href="{{ url_for('index', medium=painting['medium']) }}">{{ painting['medium'] }}</a>
+        <span>›</span>
+        <span style="color: var(--deep-olive); font-weight: 600;">{{ painting['title'] }}</span>
+    </div>
+
+    <!-- Main Detail Layout -->
+    <div class="detail-layout">
+        <!-- Artwork Image Display -->
+        <div class="detail-img-box">
+            <span class="status-badge {{ painting['status']|lower }}" style="top: 1.5rem; right: 1.5rem; font-size: 0.85rem; padding: 0.4rem 1rem;">
+                {{ painting['status'] }}
+            </span>
+            <img src="{{ painting['image_url'] }}" alt="{{ painting['title'] }}" class="detail-img" id="mainArtwork">
+        </div>
+
+        <!-- Metadata & Actions Panel -->
+        <div class="detail-meta-panel">
+            <span class="detail-medium-badge">{{ painting['medium'] }}</span>
+            <h1 class="detail-title">{{ painting['title'] }}</h1>
+
+            <div class="card-artist-meta" style="margin-bottom: 1.5rem;">
+                <img src="{{ painting['artist_avatar'] }}" alt="{{ painting['artist_name'] }}" class="artist-avatar-sm" style="width: 32px; height: 32px;">
+                <a href="{{ url_for('artist_profile', artist_id=painting['artist_id']) }}" style="font-size: 1.05rem; font-weight: 600; color: var(--sage-dark);">
+                    {{ painting['artist_name'] }}
+                </a>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">({{ painting['artist_location'] }})</span>
+            </div>
+
+            <div class="detail-price-box">
+                <span class="detail-price">${{ "%.2f"|format(painting['price']) }}</span>
+                <span style="font-size: 0.88rem; color: var(--text-muted);">Original One-of-a-Kind Artwork</span>
+            </div>
+
+            <!-- Artwork Story / Description -->
+            <p class="detail-story">
+                {{ painting['description'] or 'An original painting crafted with deliberate strokes, nuanced color layering, and timeless artistic sensibility.' }}
+            </p>
+
+            <!-- Specifications Table -->
+            <table class="spec-table">
+                <tbody>
+                    <tr>
+                        <th>Medium</th>
+                        <td>{{ painting['medium'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Dimensions</th>
+                        <td>{{ painting['dimensions'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Year Created</th>
+                        <td>{{ painting['year'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Authenticity</th>
+                        <td>Hand-signed by artist • Certificate of Authenticity (CoA) included</td>
+                    </tr>
+                    <tr>
+                        <th>Packaging</th>
+                        <td>Custom museum-grade wooden crate with archival acid-free wrapping</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Artist Snapshot Card -->
+            <div class="artist-card-detail">
+                <img src="{{ painting['artist_avatar'] }}" alt="{{ painting['artist_name'] }}">
+                <div class="artist-card-info">
+                    <h4>{{ painting['artist_name'] }}</h4>
+                    <p style="margin-bottom: 0.4rem;">{{ painting['artist_bio'][:140] }}...</p>
+                    <a href="{{ url_for('artist_profile', artist_id=painting['artist_id']) }}" style="font-size: 0.82rem; font-weight: 700; color: var(--deep-olive);">
+                        View Complete Portfolio →
+                    </a>
+                </div>
+            </div>
+
+            <!-- Purchase CTAs -->
+            <div class="detail-ctas">
+                {% if painting['status'] == 'Available' %}
+                    <button 
+                        type="button" 
+                        class="btn-add-cart-lg ajax-add-cart" 
+                        data-id="{{ painting['id'] }}"
+                    >
+                        <span>🛒</span>
+                        <span>{% if in_cart %}In Your Collection{% else %}Add to Collection Cart{% endif %}</span>
+                    </button>
+                    <a href="{{ url_for('cart') }}" class="btn-secondary-outline">
+                        View Cart
+                    </a>
+                {% else %}
+                    <div style="background-color: var(--soft-white-alt); border: 1.5px solid var(--border-light); padding: 1.2rem; border-radius: var(--radius-md); text-align: center; width: 100%;">
+                        <strong style="color: var(--badge-sold-text); font-size: 1.1rem; display: block; margin-bottom: 0.2rem;">This Original Artwork Has Been Sold</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Explore other available paintings by {{ painting['artist_name'] }} below.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Artworks by this Artist -->
+    {% if related %}
+        <div style="margin-top: 3rem; margin-bottom: 4rem; border-top: 1px solid var(--border-light); padding-top: 2.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--deep-olive); margin-bottom: 1.5rem;">
+                More from {{ painting['artist_name'] }}
+            </h3>
+            <div class="gallery-grid">
+                {% for r in related %}
+                    <div class="painting-card">
+                        <div class="card-img-wrapper">
+                            <span class="status-badge {{ r['status']|lower }}">{{ r['status'] }}</span>
+                            <a href="{{ url_for('painting_detail', painting_id=r['id']) }}">
+                                <img src="{{ r['image_url'] }}" alt="{{ r['title'] }}" class="card-img">
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title" style="font-size: 1.15rem;">
+                                <a href="{{ url_for('painting_detail', painting_id=r['id']) }}">{{ r['title'] }}</a>
+                            </h4>
+                            <p class="card-specs">{{ r['medium'] }} • {{ r['dimensions'] }}</p>
+                            <div class="card-footer">
+                                <div class="card-price">${{ "%.2f"|format(r['price']) }}</div>
+                                <a href="{{ url_for('painting_detail', painting_id=r['id']) }}" class="btn-sm">View</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

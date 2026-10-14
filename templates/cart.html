@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Collection Cart | Artisan Canvas{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="padding: 2.5rem 0 1rem; border-bottom: 1px solid var(--border-light);">
+        <h1 style="font-family: var(--font-serif); font-size: 2.4rem; color: var(--deep-olive);">Your Art Collection Cart</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Review your selected original paintings before completing your acquisition.</p>
+    </div>
+
+    {% if paintings %}
+        <div class="cart-layout">
+            <!-- Left: Cart Items -->
+            <div>
+                <div class="cart-items-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">
+                            {{ paintings|length }} Original Painting{% if paintings|length > 1 %}s{% endif %}
+                        </span>
+                        <a href="{{ url_for('clear_cart') }}" style="color: #a43a3a; font-size: 0.82rem; font-weight: 600;">Clear All</a>
+                    </div>
+
+                    {% for p in paintings %}
+                        <div class="cart-item">
+                            <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="cart-item-img">
+                            
+                            <div class="cart-item-info">
+                                <h3 class="cart-item-title">
+                                    <a href="{{ url_for('painting_detail', painting_id=p['id']) }}">{{ p['title'] }}</a>
+                                </h3>
+                                <p class="cart-item-artist">by {{ p['artist_name'] }}</p>
+                                <p class="cart-item-specs">{{ p['medium'] }} • {{ p['dimensions'] }}</p>
+                                
+                                <form action="{{ url_for('remove_from_cart', painting_id=p['id']) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn-remove-item">
+                                        <span>✕</span> Remove from cart
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="cart-item-price">
+                                ${{ "%.2f"|format(p['price']) }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div style="margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+                    <a href="{{ url_for('index') }}" style="font-size: 0.92rem; font-weight: 600; color: var(--deep-olive);">
+                        ← Continue Browsing More Paintings
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Order Summary & Checkout Form -->
+            <div>
+                <div class="order-summary-card">
+                    <h2 class="summary-title">Acquisition Summary</h2>
+                    
+                    <div class="summary-row">
+                        <span>Original Art Subtotal</span>
+                        <span>${{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Fine Art Wooden Crate & Shipping</span>
+                        <span style="color: var(--badge-available-text); font-weight: 600;">Complimentary</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Insurance & Certificate of Authenticity</span>
+                        <span style="color: var(--badge-available-text); font-weight: 600;">Included</span>
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Total Due</span>
+                        <span>${{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+
+                    <!-- Checkout Form to record in SQL backend -->
+                    <form action="{{ url_for('checkout') }}" method="POST" class="checkout-form">
+                        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--deep-olive); margin-bottom: 1rem; margin-top: 1.5rem;">
+                            Buyer & Delivery Information
+                        </h3>
+
+                        <div class="form-group">
+                            <label class="form-label" for="buyer_name">Collector's Full Name *</label>
+                            <input type="text" id="buyer_name" name="buyer_name" class="form-control" required placeholder="e.g. Katherine Sterling">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="buyer_email">Email for Confirmation & Invoice *</label>
+                            <input type="email" id="buyer_email" name="buyer_email" class="form-control" required placeholder="collector@heritage.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="address">Insured Delivery Address *</label>
+                            <textarea id="address" name="address" class="form-control" rows="3" required placeholder="Street, Suite/Apt, City, State/Province, Postal Code, Country"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="payment_method">Payment Option</label>
+                            <select id="payment_method" name="payment_method" class="form-control">
+                                <option value="Credit Card (Simulated Secure)">Credit / Debit Card (Simulated Direct Checkout)</option>
+                                <option value="Bank Wire / Escrow">Fine Art Bank Wire / Escrow Transfer</option>
+                                <option value="Apple Pay / Google Pay">Digital Wallet (Apple / Google Pay)</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-checkout">
+                            Confirm & Purchase Artwork (${{ "%.2f"|format(subtotal) }})
+                        </button>
+
+                        <p style="text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.9rem;">
+                            🔒 Safe & Secure Transaction • Paintings will be immediately reserved and marked as 'Sold'.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 5rem 1.5rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border-light); margin: 3rem 0 5rem;">
+            <p style="font-size: 3rem; margin-bottom: 0.8rem;">🛒</p>
+            <h2 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--deep-olive); margin-bottom: 0.6rem;">Your Cart is Empty</h2>
+            <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 2rem; font-size: 1rem;">
+                You haven't added any original paintings to your collection cart yet. Browse our gallery of original paintings to find the perfect piece.
+            </p>
+            <a href="{{ url_for('index') }}" class="btn-add-cart-lg" style="display: inline-flex; width: auto; padding: 0.85rem 2rem;">
+                Browse Available Paintings
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

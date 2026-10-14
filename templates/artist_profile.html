@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ artist['name'] }} | Fine Art Portfolio | Artisan Canvas{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <!-- Artist Banner -->
+    <div style="background-color: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-light); padding: 2.5rem; margin-bottom: 3rem; display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
+        <img src="{{ artist['avatar_url'] }}" alt="{{ artist['name'] }}" style="width: 120px; height: 120px; border-radius: var(--radius-full); object-fit: cover; border: 4px solid var(--sage-green);">
+        
+        <div style="flex: 1; min-width: 260px;">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 700;">Featured Painter</span>
+            <h1 style="font-family: var(--font-serif); font-size: 2.6rem; color: var(--deep-olive); margin: 0.2rem 0 0.5rem;">
+                {{ artist['name'] }}
+            </h1>
+            <p style="color: var(--sage-dark); font-weight: 500; font-size: 0.95rem; margin-bottom: 0.8rem;">
+                📍 {{ artist['location'] }} • ✉️ {{ artist['email'] }}
+            </p>
+            <p style="color: var(--text-secondary); line-height: 1.7; max-width: 700px;">
+                {{ artist['bio'] }}
+            </p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <a href="{{ url_for('select_active_artist', artist_id=artist['id']) }}" class="btn-sm" style="background-color: var(--deep-olive); color: #fff; padding: 0.6rem 1.2rem; text-align: center;">
+                Open in Studio Dashboard
+            </a>
+            <a href="{{ url_for('add_painting') }}" class="btn-sm" style="background-color: var(--sage-light); color: var(--deep-olive); padding: 0.6rem 1.2rem; text-align: center;">
+                + Add Artwork
+            </a>
+        </div>
+    </div>
+
+    <!-- Artworks by this Artist -->
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--deep-olive);">
+            Artworks by {{ artist['name'] }}
+        </h2>
+        <span style="color: var(--text-muted); font-size: 0.9rem;">{{ paintings|length }} Creation{% if paintings|length != 1 %}s{% endif %}</span>
+    </div>
+
+    {% if paintings %}
+        <div class="gallery-grid">
+            {% for p in paintings %}
+                <div class="painting-card">
+                    <div class="card-img-wrapper">
+                        <span class="status-badge {{ p['status']|lower }}">{{ p['status'] }}</span>
+                        <a href="{{ url_for('painting_detail', painting_id=p['id']) }}">
+                            <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="card-img" loading="lazy">
+                        </a>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <a href="{{ url_for('painting_detail', painting_id=p['id']) }}">
+                                {{ p['title'] }}
+                            </a>
+                        </h3>
+
+                        <p class="card-specs">
+                            <span>{{ p['medium'] }}</span> • <span>{{ p['dimensions'] }}</span> ({{ p['year'] }})
+                        </p>
+
+                        <div class="card-footer">
+                            <div class="card-price">
+                                ${{ "%.2f"|format(p['price']) }}
+                            </div>
+
+                            <div class="card-actions">
+                                <a href="{{ url_for('painting_detail', painting_id=p['id']) }}" class="btn-sm">
+                                    Details
+                                </a>
+
+                                {% if p['status'] == 'Available' %}
+                                    <button 
+                                        type="button" 
+                                        class="btn-quick-cart ajax-add-cart" 
+                                        data-id="{{ p['id'] }}"
+                                    >
+                                        + Cart
+                                    </button>
+                                {% else %}
+                                    <span class="btn-quick-cart disabled">Acquired</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem 1rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+            <p style="font-size: 2rem;">🎨</p>
+            <p style="color: var(--text-muted);">No artworks listed under this artist profile yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

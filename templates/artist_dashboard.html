@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Artist Studio & Sales Details | Artisan Canvas{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-bottom: 4rem;">
+
+    <!-- Artist Dashboard Header & Switcher -->
+    <div class="dashboard-header">
+        <div class="artist-profile-header">
+            <img src="{{ artist['avatar_url'] }}" alt="{{ artist['name'] }}" class="artist-avatar-lg">
+            <div>
+                <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 700;">Artist Studio & Sales Portal</span>
+                <h1 class="artist-dashboard-title">{{ artist['name'] }}</h1>
+                <p class="artist-dashboard-subtitle">📍 {{ artist['location'] }} • {{ artist['email'] }}</p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+            <!-- Profile Switcher for testing/multi-artist demo -->
+            <div class="artist-switcher-dropdown">
+                <span style="color: var(--text-muted); font-size: 0.8rem;">Switch Artist:</span>
+                <select onchange="window.location.href='/artist/select/' + this.value;" style="border: none; background: transparent; font-weight: 600; color: var(--deep-olive); cursor: pointer; outline: none;">
+                    {% for a in all_artists %}
+                        <option value="{{ a['id'] }}" {% if a['id'] == artist['id'] %}selected{% endif %}>
+                            {{ a['name'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <a href="{{ url_for('add_artist') }}" class="btn-sm" title="Register a new painter on the platform">
+                + New Artist
+            </a>
+
+            <a href="{{ url_for('add_painting') }}" class="btn-add-cart-lg" style="padding: 0.65rem 1.4rem; font-size: 0.92rem;">
+                + Add Painting
+            </a>
+        </div>
+    </div>
+
+    <!-- Sales & Performance Metrics -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon-box">💰</div>
+            <div class="metric-info">
+                <h4>Total Sales Revenue</h4>
+                <div class="metric-value">${{ "%.2f"|format(total_revenue) }}</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon-box">🎨</div>
+            <div class="metric-info">
+                <h4>Paintings Sold</h4>
+                <div class="metric-value">{{ sold_count }}</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon-box">🖼️</div>
+            <div class="metric-info">
+                <h4>Available for Sale</h4>
+                <div class="metric-value">{{ available_count }}</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon-box">📊</div>
+            <div class="metric-info">
+                <h4>Total Listed Works</h4>
+                <div class="metric-value">{{ total_listed }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paint Sales Details Section -->
+    <div class="section-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">Painting Sales Details & Transaction History</h2>
+                <p style="font-size: 0.88rem; color: var(--text-muted);">Real-time records of collector purchases, sale amounts, and delivery destinations.</p>
+            </div>
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--sage-dark);">
+                {{ sales_details|length }} Transaction{% if sales_details|length != 1 %}s{% endif %}
+            </span>
+        </div>
+
+        {% if sales_details %}
+            <div style="overflow-x: auto;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Artwork</th>
+                            <th>Medium</th>
+                            <th>Sale Price</th>
+                            <th>Sale Date</th>
+                            <th>Collector / Buyer</th>
+                            <th>Delivery Address</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in sales_details %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                        <img src="{{ s['painting_image'] }}" alt="{{ s['painting_title'] }}" class="table-thumb">
+                                        <strong style="color: var(--deep-olive);">{{ s['painting_title'] }}</strong>
+                                    </div>
+                                </td>
+                                <td>{{ s['painting_medium'] }}</td>
+                                <td>
+                                    <strong style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--deep-olive);">
+                                        ${{ "%.2f"|format(s['sale_price']) }}
+                                    </strong>
+                                </td>
+                                <td style="color: var(--text-secondary); font-size: 0.88rem;">
+                                    {{ s['sale_date'] }}
+                                </td>
+                                <td>
+                                    <strong>{{ s['buyer_name'] }}</strong>
+                                    <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">{{ s['buyer_email'] }}</span>
+                                </td>
+                                <td style="max-width: 220px; font-size: 0.85rem; color: var(--text-secondary);">
+                                    {{ s['shipping_address'] }}
+                                </td>
+                                <td>
+                                    <span class="status-badge sold" style="position: static; font-size: 0.75rem;">
+                                        Completed
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                <p style="font-size: 2rem; margin-bottom: 0.4rem;">📜</p>
+                <h4 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--deep-olive); margin-bottom: 0.3rem;">No Sales Recorded Yet</h4>
+                <p style="font-size: 0.88rem;">When collectors purchase your original paintings through the gallery cart, full sales details will appear here.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Artist Paintings Management -->
+    <div class="section-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">My Paintings Catalog & Inventory</h2>
+                <p style="font-size: 0.88rem; color: var(--text-muted);">Manage your current pieces, toggle availability, or add new original artworks.</p>
+            </div>
+            <a href="{{ url_for('add_painting') }}" class="btn-sm" style="background-color: var(--deep-olive); color: #fff;">
+                + Add Painting
+            </a>
+        </div>
+
+        {% if paintings %}
+            <div style="overflow-x: auto;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Painting</th>
+                            <th>Medium</th>
+                            <th>Dimensions</th>
+                            <th>Year</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in paintings %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                        <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="table-thumb">
+                                        <div>
+                                            <a href="{{ url_for('painting_detail', painting_id=p['id']) }}" style="font-weight: 600; color: var(--deep-olive);">
+                                                {{ p['title'] }}
+                                            </a>
+                                            {% if p['featured'] %}
+                                                <span style="display: inline-block; background-color: var(--sage-light); color: var(--deep-olive); font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">Featured</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ p['medium'] }}</td>
+                                <td>{{ p['dimensions'] }}</td>
+                                <td>{{ p['year'] }}</td>
+                                <td>
+                                    <strong style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--deep-olive);">
+                                        ${{ "%.2f"|format(p['price']) }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    <span class="status-badge {{ p['status']|lower }}" style="position: static;">
+                                        {{ p['status'] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <!-- Toggle Status button -->
+                                        <form action="{{ url_for('toggle_painting_status', painting_id=p['id']) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn-sm" title="Toggle between Available and Sold">
+                                                Mark as {% if p['status'] == 'Available' %}Sold{% else %}Available{% endif %}
+                                            </button>
+                                        </form>
+
+                                        <a href="{{ url_for('painting_detail', painting_id=p['id']) }}" class="btn-sm" title="Preview public artwork page">
+                                            View
+                                        </a>
+
+                                        <!-- Delete button -->
+                                        <form action="{{ url_for('delete_painting', painting_id=p['id']) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this painting?');" style="display: inline;">
+                                            <button type="submit" class="btn-sm btn-sm-danger" title="Remove painting">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem 1rem;">
+                <p style="font-size: 2.5rem; margin-bottom: 0.4rem;">🖌️</p>
+                <h4 style="font-family: var(--font-serif); font-size: 1.25rem; color: var(--deep-olive); margin-bottom: 0.4rem;">No Paintings in Studio</h4>
+                <p style="color: var(--text-muted); margin-bottom: 1.2rem;">Upload your first original painting to start selling on Artisan Canvas.</p>
+                <a href="{{ url_for('add_painting') }}" class="btn-add-cart-lg" style="display: inline-flex; width: auto;">
+                    + Upload First Painting
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

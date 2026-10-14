@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Join as an Artist | Artisan Canvas{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <div style="margin-bottom: 2rem; text-align: center;">
+        <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 700;">Artist Registration</span>
+        <h1 style="font-family: var(--font-serif); font-size: 2.4rem; color: var(--deep-olive); margin: 0.5rem 0;">
+            Join the Artisan Canvas Community
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 1rem; max-width: 520px; margin: 0 auto;">
+            Open to all independent painters, oil artists, watercolorists, and fine art creators. Start selling your original works worldwide today.
+        </p>
+    </div>
+
+    <div class="form-card">
+        <form action="{{ url_for('add_artist') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label" for="name">Artist / Studio Name *</label>
+                <input type="text" id="name" name="name" class="form-control" required placeholder="e.g. Camille Laurent">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Artist Email Address *</label>
+                <input type="email" id="email" name="email" class="form-control" required placeholder="artist@studio.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="location">Studio Location / City, Country *</label>
+                <input type="text" id="location" name="location" class="form-control" required placeholder="e.g. Barcelona, Spain">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="avatar_url">Artist Profile Photo URL (Optional)</label>
+                <input type="url" id="avatar_url" name="avatar_url" class="form-control" placeholder="https://images.unsplash.com/photo-...">
+                <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 0.3rem;">
+                    Leave blank to use a default curated artist avatar.
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="bio">Artist Biography & Statement</label>
+                <textarea id="bio" name="bio" class="form-control" rows="4" placeholder="Tell collectors about your background, training, favorite themes, mediums, and what inspires your painting process..."></textarea>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <button type="submit" class="btn-checkout">
+                    Complete Artist Profile & Open Studio
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

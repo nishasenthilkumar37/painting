@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Artisan Canvas | Buy & Sell Original Paintings{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <span class="hero-tagline">Open Platform for Independent Artists & Collectors</span>
+        <h1 class="hero-title">Timeless Original Paintings from Master Artisans</h1>
+        <p class="hero-desc">
+            Explore curated oils, tranquil watercolors, and evocative acrylics. Connect directly with independent painters, support living artists, and acquire certified original works.
+        </p>
+
+        <div class="hero-stats">
+            <div class="hero-stat-item">
+                <span class="hero-stat-num">{{ paintings|length }}+</span>
+                <span class="hero-stat-label">Original Artworks</span>
+            </div>
+            <div class="hero-stat-item">
+                <span class="hero-stat-num">{{ artists|length }}</span>
+                <span class="hero-stat-label">Featured Artists</span>
+            </div>
+            <div class="hero-stat-item">
+                <span class="hero-stat-num">100%</span>
+                <span class="hero-stat-label">Authentic & Unique</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter & Search Bar -->
+<section class="container">
+    <div class="filter-bar">
+        <form method="GET" action="{{ url_for('index') }}" class="filter-form">
+            <div class="search-input-group">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ query_search }}" 
+                    class="search-input" 
+                    placeholder="Search by painting title, artist, or style..."
+                >
+            </div>
+
+            <select name="medium" class="filter-select">
+                <option value="">All Mediums</option>
+                {% for med in all_media %}
+                    <option value="{{ med }}" {% if filter_medium == med %}selected{% endif %}>{{ med }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="artist" class="filter-select">
+                <option value="">All Artists</option>
+                {% for a in artists %}
+                    <option value="{{ a['id'] }}" {% if filter_artist == a['id']|string %}selected{% endif %}>{{ a['name'] }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="status" class="filter-select">
+                <option value="">All Status</option>
+                <option value="Available" {% if filter_status == 'Available' %}selected{% endif %}>Available Only</option>
+                <option value="Sold" {% if filter_status == 'Sold' %}selected{% endif %}>Sold Works</option>
+            </select>
+
+            <select name="sort" class="filter-select">
+                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Sort: Newest</option>
+                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title: A-Z</option>
+            </select>
+
+            <button type="submit" class="btn-filter-submit">Filter</button>
+            {% if query_search or filter_medium or filter_artist or filter_status or sort_by != 'newest' %}
+                <a href="{{ url_for('index') }}" class="btn-filter-reset">Reset</a>
+            {% endif %}
+        </form>
+    </div>
+</section>
+
+<!-- Gallery Grid Section -->
+<section class="container">
+    {% if paintings %}
+        <div class="gallery-grid">
+            {% for p in paintings %}
+                <div class="painting-card">
+                    <div class="card-img-wrapper">
+                        <span class="status-badge {{ p['status']|lower }}">{{ p['status'] }}</span>
+                        <a href="{{ url_for('painting_detail', painting_id=p['id']) }}">
+                            <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="card-img" loading="lazy">
+                        </a>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="card-artist-meta">
+                            <img src="{{ p['artist_avatar'] }}" alt="{{ p['artist_name'] }}" class="artist-avatar-sm">
+                            <a href="{{ url_for('artist_profile', artist_id=p['artist_id']) }}" class="card-artist-name">
+                                {{ p['artist_name'] }}
+                            </a>
+                        </div>
+
+                        <h3 class="card-title">
+                            <a href="{{ url_for('painting_detail', painting_id=p['id']) }}">
+                                {{ p['title'] }}
+                            </a>
+                        </h3>
+
+                        <p class="card-specs">
+                            <span>{{ p['medium'] }}</span> • <span>{{ p['dimensions'] }}</span> ({{ p['year'] }})
+                        </p>
+
+                        <div class="card-footer">
+                            <div class="card-price">
+                                ${{ "%.2f"|format(p['price']) }}
+                            </div>
+
+                            <div class="card-actions">
+                                <a href="{{ url_for('painting_detail', painting_id=p['id']) }}" class="btn-sm" title="View Painting Details">
+                                    Details
+                                </a>
+
+                                {% if p['status'] == 'Available' %}
+                                    <button 
+                                        type="button" 
+                                        class="btn-quick-cart ajax-add-cart" 
+                                        data-id="{{ p['id'] }}"
+                                        title="Add to Collection Cart"
+                                    >
+                                        <span>+ Cart</span>
+                                    </button>
+                                {% else %}
+                                    <span class="btn-quick-cart disabled">Acquired</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem 1rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 3rem;">
+            <p style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎨</p>
+            <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--deep-olive); margin-bottom: 0.5rem;">No Paintings Found</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Try adjusting your filters or search keywords.</p>
+            <a href="{{ url_for('index') }}" class="btn-filter-submit" style="display: inline-block;">Clear All Filters</a>
+        </div>
+    {% endif %}
+</section>
+
+<!-- Callout for Painters / Artists -->
+<section class="container" style="margin-bottom: 4rem;">
+    <div style="background: linear-gradient(135deg, var(--deep-olive), var(--deep-olive-light)); color: var(--soft-white); padding: 3rem; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;">
+        <div style="max-width: 600px;">
+            <span style="background-color: var(--sage-green); color: var(--deep-olive-dark); font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); text-transform: uppercase;">For All Artists & Painters</span>
+            <h2 style="font-family: var(--font-serif); font-size: 2.2rem; margin: 0.8rem 0; color: #fff;">Are you a painter looking to showcase and sell?</h2>
+            <p style="color: var(--sage-light); font-size: 1.05rem; line-height: 1.6;">
+                Any artist can join Artisan Canvas. Upload your paintings, set your own prices, track sales details, and connect with global collectors with zero listing fees.
+            </p>
+        </div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{{ url_for('add_painting') }}" style="background-color: var(--sage-light); color: var(--deep-olive); padding: 0.85rem 1.6rem; border-radius: var(--radius-full); font-weight: 700;">+ Upload Painting</a>
+            <a href="{{ url_for('artist_dashboard') }}" style="background-color: transparent; border: 1.5px solid var(--sage-light); color: var(--soft-white); padding: 0.85rem 1.6rem; border-radius: var(--radius-full); font-weight: 600;">View Sales Details</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
