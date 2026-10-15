@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border-light); padding-bottom: 1.5rem; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid var(--border-light); padding-bottom: 1.5rem; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-            <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 700;">Artist Community</span>
+            <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sage-dark); font-weight: 800;">Artist Community</span>
             <h1 style="font-family: var(--font-serif); font-size: 2.5rem; color: var(--deep-olive);">Independent Painters & Artisans</h1>
             <p style="color: var(--text-secondary); max-width: 600px;">Meet the diverse painters crafting original works on Artisan Canvas. Explore individual portfolios, artistic visions, and available studio works.</p>
         </div>
@@ -17,26 +17,29 @@
 
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
         {% for a in artists %}
-            <div style="background-color: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border-light); box-shadow: var(--card-shadow); padding: 1.8rem; display: flex; flex-direction: column; text-align: center; transition: var(--transition);">
-                <img src="{{ a['avatar_url'] }}" alt="{{ a['name'] }}" style="width: 84px; height: 84px; border-radius: var(--radius-full); object-fit: cover; margin: 0 auto 1.2rem; border: 3px solid var(--sage-green);">
+            <div style="background-color: var(--card-bg); border-radius: var(--radius-md); border: 1.5px solid var(--border-light); box-shadow: var(--card-shadow); padding: 1.8rem; display: flex; flex-direction: column; text-align: center; transition: var(--transition);">
+                <!-- Monogram Emblem instead of Artist Picture -->
+                <div class="artist-initials-badge" style="margin: 0 auto 1.2rem; width: 68px; height: 68px; font-size: 1.5rem;">
+                    {{ a['name'][:2]|upper }}
+                </div>
                 
                 <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--deep-olive); margin-bottom: 0.2rem;">
                     <a href="{{ url_for('artist_profile', artist_id=a['id']) }}">{{ a['name'] }}</a>
                 </h3>
                 
-                <span style="font-size: 0.85rem; color: var(--sage-dark); font-weight: 500; margin-bottom: 0.8rem;">
+                <span style="font-size: 0.85rem; color: var(--sage-dark); font-weight: 600; margin-bottom: 0.8rem;">
                     📍 {{ a['location'] }}
                 </span>
 
-                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem; flex-grow: 1;">
-                    {{ a['bio'][:120] }}...
+                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem; flex-grow: 1; font-style: italic;">
+                    "{{ a['bio'][:120] }}..."
                 </p>
 
-                <div style="padding-top: 1rem; border-top: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 0.82rem; color: var(--text-muted);">
+                <div style="padding-top: 1rem; border-top: 1.5px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
                         <strong>{{ a['available_paintings'] or 0 }}</strong> available
                     </span>
-                    <a href="{{ url_for('artist_profile', artist_id=a['id']) }}" class="btn-sm" style="background-color: var(--sage-light); color: var(--deep-olive); border-color: var(--sage-muted);">
+                    <a href="{{ url_for('artist_profile', artist_id=a['id']) }}" class="btn-sm" style="background-color: var(--sage-light); color: var(--deep-olive); border-color: var(--sage-border); font-weight: 700;">
                         View Portfolio →
                     </a>
                 </div>

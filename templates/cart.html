@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container">
-    <div style="padding: 2.5rem 0 1rem; border-bottom: 1px solid var(--border-light);">
+    <div style="padding: 2.5rem 0 1rem; border-bottom: 1.5px solid var(--border-light);">
         <h1 style="font-family: var(--font-serif); font-size: 2.4rem; color: var(--deep-olive);">Your Art Collection Cart</h1>
         <p style="color: var(--text-secondary); font-size: 0.95rem;">Review your selected original paintings before completing your acquisition.</p>
     </div>
@@ -14,11 +14,11 @@
             <!-- Left: Cart Items -->
             <div>
                 <div class="cart-items-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-light);">
-                        <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1.5px solid var(--border-light);">
+                        <span style="font-weight: 700; font-size: 0.9rem; color: var(--deep-olive); text-transform: uppercase;">
                             {{ paintings|length }} Original Painting{% if paintings|length > 1 %}s{% endif %}
                         </span>
-                        <a href="{{ url_for('clear_cart') }}" style="color: #a43a3a; font-size: 0.82rem; font-weight: 600;">Clear All</a>
+                        <a href="{{ url_for('clear_cart') }}" style="color: #a43a3a; font-size: 0.85rem; font-weight: 700;">Clear All</a>
                     </div>
 
                     {% for p in paintings %}
@@ -29,7 +29,13 @@
                                 <h3 class="cart-item-title">
                                     <a href="{{ url_for('painting_detail', painting_id=p['id']) }}">{{ p['title'] }}</a>
                                 </h3>
-                                <p class="cart-item-artist">by {{ p['artist_name'] }}</p>
+                                <p class="cart-item-artist">Artist: {{ p['artist_name'] }}</p>
+                                
+                                <!-- Small Note About the Painting -->
+                                <p class="cart-item-note">
+                                    <em>Note: "{{ p['description'] }}"</em>
+                                </p>
+                                
                                 <p class="cart-item-specs">{{ p['medium'] }} • {{ p['dimensions'] }}</p>
                                 
                                 <form action="{{ url_for('remove_from_cart', painting_id=p['id']) }}" method="POST" style="display: inline;">
@@ -47,7 +53,7 @@
                 </div>
 
                 <div style="margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
-                    <a href="{{ url_for('index') }}" style="font-size: 0.92rem; font-weight: 600; color: var(--deep-olive);">
+                    <a href="{{ url_for('index') }}" style="font-size: 0.95rem; font-weight: 700; color: var(--deep-olive);">
                         ← Continue Browsing More Paintings
                     </a>
                 </div>
@@ -65,12 +71,12 @@
 
                     <div class="summary-row">
                         <span>Fine Art Wooden Crate & Shipping</span>
-                        <span style="color: var(--badge-available-text); font-weight: 600;">Complimentary</span>
+                        <span style="color: var(--badge-available-text); font-weight: 700;">Complimentary</span>
                     </div>
 
                     <div class="summary-row">
                         <span>Insurance & Certificate of Authenticity</span>
-                        <span style="color: var(--badge-available-text); font-weight: 600;">Included</span>
+                        <span style="color: var(--badge-available-text); font-weight: 700;">Included</span>
                     </div>
 
                     <div class="summary-row total">
@@ -80,7 +86,7 @@
 
                     <!-- Checkout Form to record in SQL backend -->
                     <form action="{{ url_for('checkout') }}" method="POST" class="checkout-form">
-                        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--deep-olive); margin-bottom: 1rem; margin-top: 1.5rem;">
+                        <h3 style="font-family: var(--font-serif); font-size: 1.2rem; color: var(--deep-olive); margin-bottom: 1rem; margin-top: 1.5rem;">
                             Buyer & Delivery Information
                         </h3>
 
@@ -112,7 +118,7 @@
                             Confirm & Purchase Artwork (${{ "%.2f"|format(subtotal) }})
                         </button>
 
-                        <p style="text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.9rem;">
+                        <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 0.9rem;">
                             🔒 Safe & Secure Transaction • Paintings will be immediately reserved and marked as 'Sold'.
                         </p>
                     </form>
@@ -120,7 +126,7 @@
             </div>
         </div>
     {% else %}
-        <div style="text-align: center; padding: 5rem 1.5rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border-light); margin: 3rem 0 5rem;">
+        <div style="text-align: center; padding: 5rem 1.5rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1.5px solid var(--border-light); margin: 3rem 0 5rem;">
             <p style="font-size: 3rem; margin-bottom: 0.8rem;">🛒</p>
             <h2 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--deep-olive); margin-bottom: 0.6rem;">Your Cart is Empty</h2>
             <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 2rem; font-size: 1rem;">

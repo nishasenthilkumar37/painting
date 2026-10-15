@@ -5,12 +5,15 @@
 {% block content %}
 <div class="container" style="padding-bottom: 4rem;">
 
-    <!-- Artist Dashboard Header & Switcher -->
+    <!-- Artist Dashboard Header & Switcher (No Artist Picture) -->
     <div class="dashboard-header">
         <div class="artist-profile-header">
-            <img src="{{ artist['avatar_url'] }}" alt="{{ artist['name'] }}" class="artist-avatar-lg">
+            <!-- Studio Monogram / Initials Badge instead of Artist Picture -->
+            <div class="artist-initials-badge">
+                {{ artist['name'][:2]|upper }}
+            </div>
             <div>
-                <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 700;">Artist Studio & Sales Portal</span>
+                <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sage-dark); font-weight: 800;">Artist Studio & Sales Portal</span>
                 <h1 class="artist-dashboard-title">{{ artist['name'] }}</h1>
                 <p class="artist-dashboard-subtitle">📍 {{ artist['location'] }} • {{ artist['email'] }}</p>
             </div>
@@ -19,8 +22,8 @@
         <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
             <!-- Profile Switcher for testing/multi-artist demo -->
             <div class="artist-switcher-dropdown">
-                <span style="color: var(--text-muted); font-size: 0.8rem;">Switch Artist:</span>
-                <select onchange="window.location.href='/artist/select/' + this.value;" style="border: none; background: transparent; font-weight: 600; color: var(--deep-olive); cursor: pointer; outline: none;">
+                <span style="color: var(--text-muted); font-size: 0.82rem; font-weight: 600;">Switch Studio:</span>
+                <select onchange="window.location.href='/artist/select/' + this.value;" style="border: none; background: transparent; font-weight: 700; color: var(--deep-olive); cursor: pointer; outline: none;">
                     {% for a in all_artists %}
                         <option value="{{ a['id'] }}" {% if a['id'] == artist['id'] %}selected{% endif %}>
                             {{ a['name'] }}
@@ -81,7 +84,7 @@
                 <h2 class="panel-title">Painting Sales Details & Transaction History</h2>
                 <p style="font-size: 0.88rem; color: var(--text-muted);">Real-time records of collector purchases, sale amounts, and delivery destinations.</p>
             </div>
-            <span style="font-size: 0.85rem; font-weight: 600; color: var(--sage-dark);">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--sage-dark);">
                 {{ sales_details|length }} Transaction{% if sales_details|length != 1 %}s{% endif %}
             </span>
         </div>
@@ -111,7 +114,7 @@
                                 </td>
                                 <td>{{ s['painting_medium'] }}</td>
                                 <td>
-                                    <strong style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--deep-olive);">
+                                    <strong style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--deep-olive);">
                                         ${{ "%.2f"|format(s['sale_price']) }}
                                     </strong>
                                 </td>
@@ -119,7 +122,7 @@
                                     {{ s['sale_date'] }}
                                 </td>
                                 <td>
-                                    <strong>{{ s['buyer_name'] }}</strong>
+                                    <strong style="color: var(--deep-olive);">{{ s['buyer_name'] }}</strong>
                                     <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">{{ s['buyer_email'] }}</span>
                                 </td>
                                 <td style="max-width: 220px; font-size: 0.85rem; color: var(--text-secondary);">
@@ -164,7 +167,7 @@
                             <th>Painting</th>
                             <th>Medium</th>
                             <th>Dimensions</th>
-                            <th>Year</th>
+                            <th>Note / Story</th>
                             <th>Price</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -177,20 +180,22 @@
                                     <div style="display: flex; align-items: center; gap: 0.8rem;">
                                         <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="table-thumb">
                                         <div>
-                                            <a href="{{ url_for('painting_detail', painting_id=p['id']) }}" style="font-weight: 600; color: var(--deep-olive);">
+                                            <a href="{{ url_for('painting_detail', painting_id=p['id']) }}" style="font-weight: 700; color: var(--deep-olive);">
                                                 {{ p['title'] }}
                                             </a>
                                             {% if p['featured'] %}
-                                                <span style="display: inline-block; background-color: var(--sage-light); color: var(--deep-olive); font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">Featured</span>
+                                                <span style="display: inline-block; background-color: var(--sage-light); color: var(--deep-olive); font-size: 0.7rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">Featured</span>
                                             {% endif %}
                                         </div>
                                     </div>
                                 </td>
                                 <td>{{ p['medium'] }}</td>
                                 <td>{{ p['dimensions'] }}</td>
-                                <td>{{ p['year'] }}</td>
+                                <td style="max-width: 250px; font-size: 0.85rem; color: var(--text-secondary); font-style: italic;">
+                                    "{{ p['description'][:90] }}..."
+                                </td>
                                 <td>
-                                    <strong style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--deep-olive);">
+                                    <strong style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--deep-olive);">
                                         ${{ "%.2f"|format(p['price']) }}
                                     </strong>
                                 </td>

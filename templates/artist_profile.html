@@ -4,20 +4,23 @@
 
 {% block content %}
 <div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
-    <!-- Artist Banner -->
-    <div style="background-color: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-light); padding: 2.5rem; margin-bottom: 3rem; display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
-        <img src="{{ artist['avatar_url'] }}" alt="{{ artist['name'] }}" style="width: 120px; height: 120px; border-radius: var(--radius-full); object-fit: cover; border: 4px solid var(--sage-green);">
+    <!-- Artist Banner (No Artist Picture) -->
+    <div style="background-color: var(--card-bg); border-radius: var(--radius-lg); border: 1.5px solid var(--border-light); padding: 2.5rem; margin-bottom: 3rem; display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
+        <!-- Monogram Badge -->
+        <div class="artist-initials-badge" style="width: 100px; height: 100px; font-size: 2.4rem;">
+            {{ artist['name'][:2]|upper }}
+        </div>
         
         <div style="flex: 1; min-width: 260px;">
-            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage-dark); font-weight: 700;">Featured Painter</span>
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sage-dark); font-weight: 800;">Featured Painter</span>
             <h1 style="font-family: var(--font-serif); font-size: 2.6rem; color: var(--deep-olive); margin: 0.2rem 0 0.5rem;">
                 {{ artist['name'] }}
             </h1>
-            <p style="color: var(--sage-dark); font-weight: 500; font-size: 0.95rem; margin-bottom: 0.8rem;">
+            <p style="color: var(--sage-dark); font-weight: 600; font-size: 0.95rem; margin-bottom: 0.8rem;">
                 📍 {{ artist['location'] }} • ✉️ {{ artist['email'] }}
             </p>
-            <p style="color: var(--text-secondary); line-height: 1.7; max-width: 700px;">
-                {{ artist['bio'] }}
+            <p style="color: var(--text-secondary); line-height: 1.7; max-width: 700px; font-style: italic;">
+                "{{ artist['bio'] }}"
             </p>
         </div>
 
@@ -36,7 +39,7 @@
         <h2 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--deep-olive);">
             Artworks by {{ artist['name'] }}
         </h2>
-        <span style="color: var(--text-muted); font-size: 0.9rem;">{{ paintings|length }} Creation{% if paintings|length != 1 %}s{% endif %}</span>
+        <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">{{ paintings|length }} Creation{% if paintings|length != 1 %}s{% endif %}</span>
     </div>
 
     {% if paintings %}
@@ -51,6 +54,12 @@
                     </div>
                     
                     <div class="card-body">
+                        <!-- Artist Name -->
+                        <div class="card-artist-line">
+                            <span class="by-label">Artist:</span>
+                            <span class="artist-name-link">{{ artist['name'] }}</span>
+                        </div>
+
                         <h3 class="card-title">
                             <a href="{{ url_for('painting_detail', painting_id=p['id']) }}">
                                 {{ p['title'] }}
@@ -60,6 +69,12 @@
                         <p class="card-specs">
                             <span>{{ p['medium'] }}</span> • <span>{{ p['dimensions'] }}</span> ({{ p['year'] }})
                         </p>
+
+                        <!-- Small Note About the Painting -->
+                        <div class="painting-small-note">
+                            <span class="note-pill">Note</span>
+                            <p class="note-content">"{{ p['description'] }}"</p>
+                        </div>
 
                         <div class="card-footer">
                             <div class="card-price">
@@ -89,7 +104,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <div style="text-align: center; padding: 4rem 1rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+        <div style="text-align: center; padding: 4rem 1rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1.5px solid var(--border-light);">
             <p style="font-size: 2rem;">🎨</p>
             <p style="color: var(--text-muted);">No artworks listed under this artist profile yet.</p>
         </div>

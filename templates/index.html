@@ -93,9 +93,10 @@
                     </div>
                     
                     <div class="card-body">
-                        <div class="card-artist-meta">
-                            <img src="{{ p['artist_avatar'] }}" alt="{{ p['artist_name'] }}" class="artist-avatar-sm">
-                            <a href="{{ url_for('artist_profile', artist_id=p['artist_id']) }}" class="card-artist-name">
+                        <!-- Artist Name (No Artist Picture) -->
+                        <div class="card-artist-line">
+                            <span class="by-label">Artist:</span>
+                            <a href="{{ url_for('artist_profile', artist_id=p['artist_id']) }}" class="artist-name-link">
                                 {{ p['artist_name'] }}
                             </a>
                         </div>
@@ -109,6 +110,12 @@
                         <p class="card-specs">
                             <span>{{ p['medium'] }}</span> • <span>{{ p['dimensions'] }}</span> ({{ p['year'] }})
                         </p>
+
+                        <!-- Small Note About the Painting -->
+                        <div class="painting-small-note">
+                            <span class="note-pill">Artwork Note</span>
+                            <p class="note-content">"{{ p['description'] }}"</p>
+                        </div>
 
                         <div class="card-footer">
                             <div class="card-price">
@@ -139,7 +146,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <div style="text-align: center; padding: 4rem 1rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 3rem;">
+        <div style="text-align: center; padding: 4rem 1rem; background-color: var(--card-bg); border-radius: var(--radius-md); border: 1.5px solid var(--border-light); margin-bottom: 3rem;">
             <p style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎨</p>
             <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--deep-olive); margin-bottom: 0.5rem;">No Paintings Found</h3>
             <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Try adjusting your filters or search keywords.</p>
@@ -152,7 +159,7 @@
 <section class="container" style="margin-bottom: 4rem;">
     <div style="background: linear-gradient(135deg, var(--deep-olive), var(--deep-olive-light)); color: var(--soft-white); padding: 3rem; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;">
         <div style="max-width: 600px;">
-            <span style="background-color: var(--sage-green); color: var(--deep-olive-dark); font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); text-transform: uppercase;">For All Artists & Painters</span>
+            <span style="background-color: var(--sage-light); color: var(--deep-olive); font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); text-transform: uppercase;">For All Artists & Painters</span>
             <h2 style="font-family: var(--font-serif); font-size: 2.2rem; margin: 0.8rem 0; color: #fff;">Are you a painter looking to showcase and sell?</h2>
             <p style="color: var(--sage-light); font-size: 1.05rem; line-height: 1.6;">
                 Any artist can join Artisan Canvas. Upload your paintings, set your own prices, track sales details, and connect with global collectors with zero listing fees.
@@ -160,7 +167,7 @@
         </div>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <a href="{{ url_for('add_painting') }}" style="background-color: var(--sage-light); color: var(--deep-olive); padding: 0.85rem 1.6rem; border-radius: var(--radius-full); font-weight: 700;">+ Upload Painting</a>
-            <a href="{{ url_for('artist_dashboard') }}" style="background-color: transparent; border: 1.5px solid var(--sage-light); color: var(--soft-white); padding: 0.85rem 1.6rem; border-radius: var(--radius-full); font-weight: 600;">View Sales Details</a>
+            <a href="{{ url_for('artist_dashboard') }}" style="background-color: transparent; border: 2px solid var(--sage-light); color: var(--soft-white); padding: 0.85rem 1.6rem; border-radius: var(--radius-full); font-weight: 700;">View Sales Details</a>
         </div>
     </div>
 </section>
