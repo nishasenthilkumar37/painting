@@ -28,14 +28,22 @@ class VercelPrefixMiddleware(object):
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ, start_response):
-        path = environ.get('PATH_INFO', '')
-        if path.startswith('/api/index'):
-            environ['PATH_INFO'] = path[len('/api/index'):] or '/'
-        elif path.startswith('/api'):
-            environ['PATH_INFO'] = path[len('/api'):] or '/'
+        matched = environ.get('HTTP_X_MATCHED_PATH')
+        if matched:
+            environ['PATH_INFO'] = matched
+        else:
+            path = environ.get('PATH_INFO', '')
+            if path.startswith('/api/index'):
+                environ['PATH_INFO'] = path[len('/api/index'):] or '/'
+            elif path.startswith('/api'):
+                environ['PATH_INFO'] = path[len('/api'):] or '/'
         return self.wsgi_app(environ, start_response)
 
 app.wsgi_app = VercelPrefixMiddleware(app.wsgi_app)
+
+@app.route('/static/<path:filename>')
+def custom_static(filename):
+    return send_from_directory(STATIC_DIR, filename)
 
 # Configure Upload Folder safely (support serverless /tmp)
 IS_SERVERLESS = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
