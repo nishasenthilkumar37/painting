@@ -40,7 +40,7 @@
                     <span class="spotlight-seal">Exhibition Spotlight</span>
                     {% if paintings and paintings|length > 0 %}
                         <a href="{{ url_for('painting_detail', painting_id=paintings[0]['id']) }}">
-                            <img src="{{ paintings[0]['image_url'] }}" alt="{{ paintings[0]['title'] }}" class="spotlight-img">
+                            <img src="{{ paintings[0]['image_url'] }}" alt="{{ paintings[0]['title'] }}" class="spotlight-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1000&q=80';">
                         </a>
                     {% else %}
                         <img src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=900&auto=format&fit=crop&q=80" alt="Spotlight Painting" class="spotlight-img">
@@ -148,7 +148,7 @@
                     <div class="card-img-wrapper">
                         <span class="status-badge {{ p['status']|lower }}">{{ p['status'] }}</span>
                         <a href="{{ url_for('painting_detail', painting_id=p['id']) }}">
-                            <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="card-img" loading="lazy">
+                            <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="card-img" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1000&q=80';">
                         </a>
                     </div>
                     

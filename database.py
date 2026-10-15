@@ -17,24 +17,50 @@ if IS_SERVERLESS:
 else:
     DB_PATH = os.path.join(BASE_DIR, 'artisan_gallery.db')
 
+_FIXED_URLS = False
+
+def fix_known_broken_urls(conn):
+    global _FIXED_URLS
+    if _FIXED_URLS:
+        return
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='paintings'")
+        if not cur.fetchone():
+            return
+        # Fix Sage Horizons No. 4
+        cur.execute("""
+            UPDATE paintings 
+            SET image_url = 'https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1200&q=80'
+            WHERE title = 'Sage Horizons No. 4' OR image_url LIKE '%photo-1579783902614%'
+        """)
+        # Fix Zen Garden Stone and Moss
+        cur.execute("""
+            UPDATE paintings 
+            SET image_url = 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=1200&q=80'
+            WHERE title = 'Zen Garden Stone and Moss' OR image_url LIKE '%photo-1549887534%'
+        """)
+        conn.commit()
+        _FIXED_URLS = True
+    except Exception:
+        pass
+
 def get_db_connection():
     if not os.path.exists(DB_PATH):
         init_db()
-    else:
-        try:
-            check_conn = sqlite3.connect(DB_PATH)
-            cur = check_conn.cursor()
-            cur.execute("SELECT 1 FROM artists LIMIT 1")
-            check_conn.close()
-        except sqlite3.OperationalError:
-            try:
-                check_conn.close()
-            except Exception:
-                pass
-            init_db()
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=20.0)
     conn.row_factory = sqlite3.Row
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM artists LIMIT 1")
+    except sqlite3.OperationalError:
+        conn.close()
+        init_db()
+        conn = sqlite3.connect(DB_PATH, timeout=20.0)
+        conn.row_factory = sqlite3.Row
+
+    fix_known_broken_urls(conn)
     return conn
 
 def init_db():
@@ -183,7 +209,7 @@ def seed_sample_data(conn):
             '36" x 36"',
             2025,
             1450.00,
-            "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1000&q=80",
+            "https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1200&q=80",
             "Available",
             1
         ),
@@ -231,7 +257,7 @@ def seed_sample_data(conn):
             '48" x 36"',
             2026,
             2100.00,
-            "https://images.unsplash.com/photo-1549887534-1541e9326642?auto=format&fit=crop&w=1000&q=80",
+            "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=1200&q=80",
             "Available",
             1
         ),

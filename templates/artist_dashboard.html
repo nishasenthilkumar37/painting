@@ -108,7 +108,7 @@
                             <tr>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 0.8rem;">
-                                        <img src="{{ s['painting_image'] }}" alt="{{ s['painting_title'] }}" class="table-thumb">
+                                        <img src="{{ s['painting_image'] }}" alt="{{ s['painting_title'] }}" class="table-thumb" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1000&q=80';">
                                         <strong style="color: var(--deep-olive);">{{ s['painting_title'] }}</strong>
                                     </div>
                                 </td>
@@ -178,7 +178,7 @@
                             <tr>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 0.8rem;">
-                                        <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="table-thumb">
+                                        <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="table-thumb" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1000&q=80';">
                                         <div>
                                             <a href="{{ url_for('painting_detail', painting_id=p['id']) }}" style="font-weight: 700; color: var(--deep-olive);">
                                                 {{ p['title'] }}

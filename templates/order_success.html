@@ -41,7 +41,7 @@
             {% for p in paintings %}
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-top: 1px solid var(--border-light);">
                     <div style="display: flex; align-items: center; gap: 0.8rem;">
-                        <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" style="width: 42px; height: 42px; border-radius: 4px; object-fit: cover;">
+                        <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" style="width: 42px; height: 42px; border-radius: 4px; object-fit: cover;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1000&q=80';">
                         <div>
                             <span style="font-weight: 600; color: var(--deep-olive); display: block;">{{ p['title'] }}</span>
                             <span style="font-size: 0.8rem; color: var(--text-muted);">{{ p['medium'] }}</span>

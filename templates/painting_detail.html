@@ -20,7 +20,7 @@
             <span class="status-badge {{ painting['status']|lower }}" style="top: 1.5rem; right: 1.5rem; font-size: 0.85rem; padding: 0.4rem 1rem;">
                 {{ painting['status'] }}
             </span>
-            <img src="{{ painting['image_url'] }}" alt="{{ painting['title'] }}" class="detail-img" id="mainArtwork">
+            <img src="{{ painting['image_url'] }}" alt="{{ painting['title'] }}" class="detail-img" id="mainArtwork" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1200&q=80';">
         </div>
 
         <!-- Metadata & Actions Panel -->
@@ -125,7 +125,7 @@
                         <div class="card-img-wrapper">
                             <span class="status-badge {{ r['status']|lower }}">{{ r['status'] }}</span>
                             <a href="{{ url_for('painting_detail', painting_id=r['id']) }}">
-                                <img src="{{ r['image_url'] }}" alt="{{ r['title'] }}" class="card-img">
+                                <img src="{{ r['image_url'] }}" alt="{{ r['title'] }}" class="card-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1000&q=80';">
                             </a>
                         </div>
                         <div class="card-body">

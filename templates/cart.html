@@ -23,7 +23,7 @@
 
                     {% for p in paintings %}
                         <div class="cart-item">
-                            <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="cart-item-img">
+                            <img src="{{ p['image_url'] }}" alt="{{ p['title'] }}" class="cart-item-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1580136579312-94651dfd596d?auto=format&fit=crop&w=1000&q=80';">
                             
                             <div class="cart-item-info">
                                 <h3 class="cart-item-title">
