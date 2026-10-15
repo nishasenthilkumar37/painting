@@ -22,15 +22,24 @@ app = Flask(
 )
 app.secret_key = 'artisan_gallery_secret_key_sage_olive_2026'
 
-# WSGI Middleware to fix Vercel /api/index prefix in PATH_INFO
+from urllib.parse import parse_qs, urlencode
+
+# WSGI Middleware to fix Vercel path routing
 class VercelPrefixMiddleware(object):
     def __init__(self, wsgi_app):
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ, start_response):
-        matched = environ.get('HTTP_X_MATCHED_PATH')
-        if matched:
-            environ['PATH_INFO'] = matched
+        qs = environ.get('QUERY_STRING', '')
+        if '__path__' in qs:
+            params = parse_qs(qs, keep_blank_values=True)
+            if '__path__' in params and params['__path__']:
+                target_path = params['__path__'][0]
+                if not target_path.startswith('/'):
+                    target_path = '/' + target_path
+                environ['PATH_INFO'] = target_path
+                del params['__path__']
+                environ['QUERY_STRING'] = urlencode(params, doseq=True)
         else:
             path = environ.get('PATH_INFO', '')
             if path.startswith('/api/index'):
