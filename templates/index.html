@@ -3,34 +3,94 @@
 {% block title %}Artisan Canvas | Buy & Sell Original Paintings{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="container hero-content">
-        <span class="hero-tagline">Open Platform for Independent Artists & Collectors</span>
-        <h1 class="hero-title">Timeless Original Paintings from Master Artisans</h1>
-        <p class="hero-desc">
-            Explore curated oils, tranquil watercolors, and evocative acrylics. Connect directly with independent painters, support living artists, and acquire certified original works.
-        </p>
+<!-- Museum Split Hero Showcase -->
+<section class="hero-showcase">
+    <div class="container hero-grid">
+        <div class="hero-text-side">
+            <span class="hero-tagline">✨ Fine Art Marketplace & Independent Artist Studio</span>
+            <h1 class="hero-title">Timeless Original Paintings from <em>Master Artisans</em></h1>
+            <p class="hero-desc">
+                Immerse yourself in authentic fine art. Discover curated hand-painted oils, tranquil watercolors, and evocative acrylics directly from independent studio painters worldwide with certified authenticity and zero gallery markups.
+            </p>
 
-        <div class="hero-stats">
-            <div class="hero-stat-item">
-                <span class="hero-stat-num">{{ paintings|length }}+</span>
-                <span class="hero-stat-label">Original Artworks</span>
+            <div class="hero-ctas">
+                <a href="#gallery" class="btn-hero-primary">Explore Collection ↓</a>
+                <a href="{{ url_for('artist_dashboard') }}" class="btn-hero-secondary">Artist Studio Portal</a>
             </div>
-            <div class="hero-stat-item">
-                <span class="hero-stat-num">{{ artists|length }}</span>
-                <span class="hero-stat-label">Featured Artists</span>
+
+            <div class="hero-trust-bar">
+                <div class="trust-item">
+                    <span>✓</span>
+                    <span>100% Original Paintings</span>
+                </div>
+                <div class="trust-item">
+                    <span>✦</span>
+                    <span>Direct Artist Support</span>
+                </div>
+                <div class="trust-item">
+                    <span>🛡️</span>
+                    <span>Certificate of Authenticity</span>
+                </div>
             </div>
-            <div class="hero-stat-item">
-                <span class="hero-stat-num">100%</span>
-                <span class="hero-stat-label">Authentic & Unique</span>
+        </div>
+
+        <div class="hero-spotlight-side">
+            <div class="spotlight-frame">
+                <div class="spotlight-img-box">
+                    <span class="spotlight-seal">Exhibition Spotlight</span>
+                    {% if paintings and paintings|length > 0 %}
+                        <a href="{{ url_for('painting_detail', painting_id=paintings[0]['id']) }}">
+                            <img src="{{ paintings[0]['image_url'] }}" alt="{{ paintings[0]['title'] }}" class="spotlight-img">
+                        </a>
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=900&auto=format&fit=crop&q=80" alt="Spotlight Painting" class="spotlight-img">
+                    {% endif %}
+                </div>
+                <div class="spotlight-caption">
+                    <div>
+                        <div class="spotlight-artist">
+                            {% if paintings and paintings|length > 0 %}
+                                Artist: {{ paintings[0]['artist_name'] }}
+                            {% else %}
+                                Artist: Elena Rostova
+                            {% endif %}
+                        </div>
+                        <h4 class="spotlight-title">
+                            {% if paintings and paintings|length > 0 %}
+                                <a href="{{ url_for('painting_detail', painting_id=paintings[0]['id']) }}">{{ paintings[0]['title'] }}</a>
+                            {% else %}
+                                Emerald Solitude
+                            {% endif %}
+                        </h4>
+                    </div>
+                    <div class="spotlight-price">
+                        {% if paintings and paintings|length > 0 %}
+                            ${{ "%.2f"|format(paintings[0]['price']) }}
+                        {% else %}
+                            $850.00
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Filter & Search Bar -->
-<section class="container">
+<!-- Filter & Search Section -->
+<section class="container filter-section" id="gallery">
+    <!-- Quick Medium Pill Chips -->
+    <div class="quick-medium-pills">
+        <a href="{{ url_for('index', q=query_search, artist=filter_artist, status=filter_status, sort=sort_by) }}" class="medium-pill {% if not filter_medium %}active{% endif %}">
+            All Mediums
+        </a>
+        {% for med in all_media %}
+            <a href="{{ url_for('index', medium=med, q=query_search, artist=filter_artist, status=filter_status, sort=sort_by) }}" class="medium-pill {% if filter_medium == med %}active{% endif %}">
+                {{ med }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Filter Bar Form -->
     <div class="filter-bar">
         <form method="GET" action="{{ url_for('index') }}" class="filter-form">
             <div class="search-input-group">
@@ -40,7 +100,7 @@
                     name="q" 
                     value="{{ query_search }}" 
                     class="search-input" 
-                    placeholder="Search by painting title, artist, or style..."
+                    placeholder="Search paintings by title, artist, or style..."
                 >
             </div>
 
@@ -71,7 +131,7 @@
                 <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title: A-Z</option>
             </select>
 
-            <button type="submit" class="btn-filter-submit">Filter</button>
+            <button type="submit" class="btn-filter-submit">Apply Filters</button>
             {% if query_search or filter_medium or filter_artist or filter_status or sort_by != 'newest' %}
                 <a href="{{ url_for('index') }}" class="btn-filter-reset">Reset</a>
             {% endif %}
@@ -111,7 +171,7 @@
                             <span>{{ p['medium'] }}</span> • <span>{{ p['dimensions'] }}</span> ({{ p['year'] }})
                         </p>
 
-                        <!-- Small Note About the Painting -->
+                        <!-- Small Note About the Painting (Exhibition Plaque) -->
                         <div class="painting-small-note">
                             <span class="note-pill">Artwork Note</span>
                             <p class="note-content">"{{ p['description'] }}"</p>
@@ -157,17 +217,25 @@
 
 <!-- Callout for Painters / Artists -->
 <section class="container" style="margin-bottom: 4rem;">
-    <div style="background: linear-gradient(135deg, var(--deep-olive), var(--deep-olive-light)); color: var(--soft-white); padding: 3rem; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;">
-        <div style="max-width: 600px;">
-            <span style="background-color: var(--sage-light); color: var(--deep-olive); font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); text-transform: uppercase;">For All Artists & Painters</span>
-            <h2 style="font-family: var(--font-serif); font-size: 2.2rem; margin: 0.8rem 0; color: #fff;">Are you a painter looking to showcase and sell?</h2>
-            <p style="color: var(--sage-light); font-size: 1.05rem; line-height: 1.6;">
-                Any artist can join Artisan Canvas. Upload your paintings, set your own prices, track sales details, and connect with global collectors with zero listing fees.
+    <div style="background: linear-gradient(135deg, var(--deep-olive), var(--deep-olive-light)); color: var(--soft-white); padding: 3.2rem 3rem; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem; box-shadow: var(--frame-shadow); border: 1.5px solid rgba(223, 232, 221, 0.2);">
+        <div style="max-width: 620px;">
+            <span style="background-color: var(--sage-light); color: var(--deep-olive); font-size: 0.78rem; font-weight: 800; padding: 0.3rem 0.85rem; border-radius: var(--radius-full); text-transform: uppercase; letter-spacing: 0.08em; display: inline-block; margin-bottom: 0.7rem;">
+                Open to All Painters & Artists
+            </span>
+            <h2 style="font-family: var(--font-serif); font-size: 2.2rem; margin: 0.5rem 0 0.8rem; color: #fff; line-height: 1.25;">
+                Are you a painter looking to showcase and sell your artwork?
+            </h2>
+            <p style="color: var(--sage-light); font-size: 1.05rem; line-height: 1.65;">
+                Any artist can join Artisan Canvas. Upload your paintings in seconds, set your own prices, track sales revenue details in real-time, and ship directly to art lovers worldwide with zero listing fees.
             </p>
         </div>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <a href="{{ url_for('add_painting') }}" style="background-color: var(--sage-light); color: var(--deep-olive); padding: 0.85rem 1.6rem; border-radius: var(--radius-full); font-weight: 700;">+ Upload Painting</a>
-            <a href="{{ url_for('artist_dashboard') }}" style="background-color: transparent; border: 2px solid var(--sage-light); color: var(--soft-white); padding: 0.85rem 1.6rem; border-radius: var(--radius-full); font-weight: 700;">View Sales Details</a>
+            <a href="{{ url_for('add_painting') }}" style="background-color: var(--sage-light); color: var(--deep-olive); padding: 0.9rem 1.8rem; border-radius: var(--radius-full); font-weight: 800; font-size: 0.98rem; box-shadow: 0 4px 14px rgba(0,0,0,0.18);">
+                + Upload New Painting
+            </a>
+            <a href="{{ url_for('artist_dashboard') }}" style="background-color: transparent; border: 2px solid var(--sage-light); color: var(--soft-white); padding: 0.9rem 1.8rem; border-radius: var(--radius-full); font-weight: 700; font-size: 0.98rem;">
+                View Sales Details
+            </a>
         </div>
     </div>
 </section>
